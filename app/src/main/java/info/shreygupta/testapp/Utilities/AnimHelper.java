@@ -12,6 +12,9 @@ import info.shreygupta.testapp.R;
  * Created by XCODER on 2/26/2018.
  */
 
+/**
+ * Handle Animations Within Project
+ */
 public class AnimHelper {
     Context context;
 
@@ -19,6 +22,9 @@ public class AnimHelper {
         this.context = context;
     }
 
+    /*
+    Slide Up ANimation
+     */
     public void dropAnimation(final RecyclerView view) {
         Animation slide_down = AnimationUtils.loadAnimation(context,
                 R.anim.slide_down);

@@ -2,15 +2,15 @@ package info.shreygupta.testapp.Activities;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +27,7 @@ import java.util.ArrayList;
 
 import info.shreygupta.testapp.Adapters.CategoriesAdapter;
 import info.shreygupta.testapp.Models.Configurations;
+import info.shreygupta.testapp.Models.Variant;
 import info.shreygupta.testapp.R;
 import info.shreygupta.testapp.Utilities.AnimHelper;
 import info.shreygupta.testapp.Utilities.ApiConfiguration;
@@ -41,20 +42,41 @@ public class ProductDetailsActivity extends AppCompatActivity {
     RecyclerView configRecycler;
     ImageView arrow;
     ProgressDialog dialog;
-
+    ArrayList<Variant> variants;
+    TextView seeMore;
+    FloatingActionButton viewImage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_product_details);
+        init();
+        if (VolleySingleton.getInstance(this).getConnected())
+            fetchCategoriesAndDesc();
+        else {
+            Toast.makeText(this, "Not Connected", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    /**
+     * Initialize Views And Listners
+     */
+    void init() {
+        /*
+        Top Back Button Click Listner
+         */
         findViewById(R.id.back_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
             }
         });
+        viewImage = findViewById(R.id.view_images);
+        seeMore = findViewById(R.id.see_more);
         configRecycler = findViewById(R.id.product_options);
         list = new ArrayList<>();
+        variants = new ArrayList<>();
         configRecycler.setLayoutManager(new LinearLayoutManager(this));
         adapter = new CategoriesAdapter(this, list);
         description = findViewById(R.id.description);
@@ -65,22 +87,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
         arrow = findViewById(R.id.price_arrow);
         price = findViewById(R.id.price);
         priceText = findViewById(R.id.price_text);
-        if (VolleySingleton.getInstance(this).getConnected())
-            fetchCategoriesAndDesc();
-        else {
-            Toast.makeText(this, "Not Connected", Toast.LENGTH_SHORT).show();
-        }
-        adapter.setOnSelectionListner(new CategoriesAdapter.OnSelectedListner() {
-            @Override
-            public void onSelectionChanged(int position, int index) {
-                if (VolleySingleton.getInstance(ProductDetailsActivity.this).getConnected())
-                    fetchPrices();
-                else {
-                    Toast.makeText(ProductDetailsActivity.this, "Not Connected", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        // The Strip Containing price Infrmation
         findViewById(R.id.price_layout).setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -88,16 +94,47 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 toggleCategories();
             }
         });
+        /*
+        Custom Listner To Listner for changes in variant selection in adapter
+         */
+        adapter.setOnSelectionListner(new CategoriesAdapter.OnSelectedListner() {
+            @Override
+            public void onSelectionChanged(int position, int index) {
+                setPrices();
+            }
+        });
+        seeMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                expandCollapseDesc();
+            }
+        });
     }
 
+    /**
+     * Expand Long Description
+     */
+    void expandCollapseDesc() {
+        if (seeMore.getText().toString().equals(getString(R.string.see_more))) {
+            longDesc.setMaxLines(Integer.MAX_VALUE);
+            seeMore.setText(R.string.show_lines);
+        } else {
+            longDesc.setMaxLines(4);
+            seeMore.setText(R.string.see_more);
+        }
+    }
+
+    /**
+     * Change The Visibility Of Product Variants
+     */
     void toggleCategories() {
         AnimHelper animationUtils = new AnimHelper(ProductDetailsActivity.this);
         if (configRecycler.getVisibility() == View.VISIBLE) {
             animationUtils.upAnimation(configRecycler);
-            arrow.setRotation(180);
+            arrow.setRotation(0);
         } else {
             animationUtils.dropAnimation(configRecycler);
-            arrow.setRotation(0);
+            arrow.setRotation(180);
         }
     }
 
@@ -141,8 +178,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                         .replace("<ul>", "")
                                         .replace("</ul>", "")
                                         .replace("\n", "")
-                                        .replace("<li>", "\n" + getString(R.string.Bullet));
-
+                                        .replace("<li>", "\n" + getString(R.string.Bullet) + " ");
                                 description.setText(longDes);
                                 break;
                             case "short_description":
@@ -151,10 +187,17 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                         .replace("<ul>", "")
                                         .replace("</ul>", "")
                                         .replace("\n", "")
-                                        .replace("<li>", "\n" + getString(R.string.Bullet));
+                                        .replace("<li>", "\n" + getString(R.string.Bullet) + " ");
+
                                 longDesc.setText(longDes);
                                 break;
                         }
+                    }
+                    if (TextUtils.isEmpty(description.getText().toString())) {
+                        description.setText(getString(R.string.not_available));
+                    }
+                    if (TextUtils.isEmpty(longDesc.getText().toString())) {
+                        longDesc.setText(getString(R.string.not_available));
                     }
                     if (dialog != null)
                         dialog.dismiss();
@@ -180,7 +223,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
     }
 
     void fetchPrices() {
-        final String[] selectedConfigs = getSelectedConfigs();
         showProgressDialog("Fetching Prices ..");
         StringRequest stringRequest = new StringRequest(Request.Method.GET, ApiConfiguration.productDetails(getIntent().getStringExtra("sku")), new Response.Listener<String>() {
             @Override
@@ -190,27 +232,26 @@ public class ProductDetailsActivity extends AppCompatActivity {
                     JSONArray object = new JSONArray(response);
                     int n = object.length();
                     for (int i = 0; i < n; i++) {
+                        Variant variant = new Variant();
                         JSONObject temp = object.getJSONObject(i);
-                        if (containsAll(temp.getString("sku"), selectedConfigs)) {
-                            price.setText(String.format("%s %s", getString(R.string.Rs), temp.getString("price")));
+                        variant.setSku(temp.getString("sku"));
+                        variant.setPrice(temp.getString("price"));
                             JSONArray descArray = temp.getJSONArray("custom_attributes");
                             int len = descArray.length();
                             for (int j = 0; j < len; j++) {
                                 switch (descArray.getJSONObject(j).getString("attribute_code")) {
                                     case "price_description":
-                                        priceText.setText(Html.fromHtml(descArray.getJSONObject(j).getString("value")));
+                                        variant.setPriceText(descArray.getJSONObject(j).getString("value"));
                                         break;
                                     case "image":
-                                        GlideHelper.load(ProductDetailsActivity.this
-                                                , ApiConfiguration.IMAGE_PATH + descArray.getJSONObject(j)
-                                                        .getString("value")
-                                                , headerImage);
+                                        variant.setImage(ApiConfiguration.IMAGE_PATH + descArray.getJSONObject(j)
+                                                .getString("value"));
                                         break;
                                 }
                             }
-                        }
+                        variants.add(variant);
                     }
-
+                    setPrices();
                 } catch (JSONException e) {
                     e.printStackTrace();
                     try {
@@ -229,6 +270,26 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
 
         VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
+    }
+
+    /**
+     * Find And Set The Price
+     */
+    void setPrices() {
+        final String[] selectedConfigs = getSelectedConfigs();
+        for (Variant variant : variants) {
+            if (containsAll(variant.getSku(), selectedConfigs)) {
+                priceText.setText(Html.fromHtml(variant.getPriceText()));
+                price.setText(String.format("%s %s", getString(R.string.Rs), variant.getPrice()));
+                GlideHelper.load(ProductDetailsActivity.this
+                        , variant.getImage()
+                        , headerImage);
+
+            }
+        }
+        if (variants.size() == 0) {
+            fetchPrices();
+        }
     }
 
     /**
@@ -274,26 +335,5 @@ public class ProductDetailsActivity extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(false);
         dialog.setMessage(message);
         dialog.show();
-    }
-
-    public void dropAnimation(final RecyclerView view) {
-        Animation slide_down = AnimationUtils.loadAnimation(this,
-                R.anim.slide_down);
-        slide_down.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                view.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
     }
 }

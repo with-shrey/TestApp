@@ -17,9 +17,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:contentDescription="@string/product_image"
-            android:padding="4dp"
             android:scaleType="centerCrop"
             tools:src="@drawable/placeholder" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/view_images"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="20dp"
+            android:backgroundTint="#2b2822"
+            android:src="@drawable/ic_image" />
 
         <RatingBar
             android:id="@+id/rating_bar"
@@ -35,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/title"
             android:layout_toEndOf="@id/rating_bar"
-            android:text="(5 Ratings)"
+            android:text="@string/_5_ratings"
             android:textColor="@color/rating_text"
             android:textSize="12sp" />
 
@@ -55,6 +65,7 @@
             android:id="@+id/back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/back_button"
             android:padding="5dp"
             android:src="@drawable/ic_back" />
 
@@ -64,6 +75,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_gravity="end"
+            android:contentDescription="@string/share_button"
             android:padding="4dp"
             android:src="@drawable/ic_share" />
 
@@ -72,6 +84,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toStartOf="@id/share"
+            android:contentDescription="@string/bookmark"
             android:padding="4dp"
             android:src="@drawable/ic_bookmark" />
     </RelativeLayout>
@@ -87,10 +100,11 @@
             android:id="@+id/price"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2"
+            android:layout_weight="1.5"
             android:gravity="end|center_vertical"
             android:paddingEnd="5dp"
-            android:text="Rs.550"
+            android:paddingStart="0dp"
+            android:text="@string/initial_price"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -101,15 +115,19 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="start|center_vertical"
+            android:paddingEnd="0dp"
             android:paddingStart="5dp"
-            android:text="for 10 Photos"
+            android:text="@string/initial_price_text"
             android:textColor="@android:color/white" />
 
         <ImageView
             android:id="@+id/price_arrow"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_gravity="start"
             android:layout_weight="1"
+            android:contentDescription="@string/price_switch"
+            android:rotation="180"
             android:src="@drawable/ic_down" />
     </LinearLayout>
 
@@ -132,8 +150,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="15dp"
-                android:text="About This Item"
+                android:paddingTop="8dp"
+                android:text="@string/about_this_item"
                 android:textSize="18sp" />
 
             <LinearLayout
@@ -149,7 +167,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="Description"
+                    android:text="@string/description"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -157,8 +175,8 @@
                     android:id="@+id/description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingEnd="5dp"
-                    android:paddingStart="5dp" />
+                    android:padding="5dp"
+                    android:paddingBottom="8dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -174,7 +192,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="Features And Details"
+                    android:text="@string/features_and_details"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -182,16 +200,20 @@
                     android:id="@+id/features_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:maxLines="4"
                     android:paddingEnd="5dp"
                     android:paddingStart="5dp" />
 
                 <TextView
+                    android:id="@+id/see_more"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="end"
                     android:paddingEnd="5dp"
-                    android:text="See More"
-                    android:textColor="#ed6060" />
+                    android:paddingStart="0dp"
+                    android:text="@string/see_more"
+                    android:textColor="#ed6060"
+                    android:textSize="18sp" />
             </LinearLayout>
 
             <Button
@@ -199,7 +221,7 @@
                 android:layout_height="45dp"
                 android:layout_margin="@dimen/padding_cat_button"
                 android:background="#dc5757"
-                android:text="Customise Table Frame"
+                android:text="@string/customise_table_frame"
                 android:textColor="@android:color/white" />
         </LinearLayout>
     </ScrollView>

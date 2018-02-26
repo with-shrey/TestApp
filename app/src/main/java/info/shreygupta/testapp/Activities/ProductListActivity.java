@@ -35,11 +35,10 @@ public class ProductListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_product_list);
-        products = new ArrayList<>();
-        RecyclerView recyclerView = findViewById(R.id.product_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ProductListAdapter(this, products);
-        recyclerView.setAdapter(adapter);
+        init();
+        /*
+        Check Connectivity Before Fetching Data
+         */
         if (VolleySingleton.getInstance(this).getConnected())
             fetchProducts();
         else {
@@ -47,6 +46,17 @@ public class ProductListActivity extends AppCompatActivity {
         }
     }
 
+    void init() {
+        products = new ArrayList<>();
+        RecyclerView recyclerView = findViewById(R.id.product_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ProductListAdapter(this, products);
+        recyclerView.setAdapter(adapter);
+    }
+
+    /**
+     * Fetch List Of Products
+     */
     void fetchProducts() {
         showProgressDialog("Fetching Product List ..");
         StringRequest stringRequest = new StringRequest(Request.Method.GET, ApiConfiguration.PRODUCTS, new Response.Listener<String>() {
@@ -83,6 +93,11 @@ public class ProductListActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Show Progress Dialog While Fetching Data
+     *
+     * @param message The Text To Diaplay On Dialog
+     */
     void showProgressDialog(String message) {
         dialog = new ProgressDialog(this);
         dialog.setCancelable(false);

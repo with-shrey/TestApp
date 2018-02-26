@@ -3,4 +3,18 @@
     <string name="product_image">Product Image</string>
     <string name="Rs">\u20B9</string>
     <string name="Bullet">\u2022</string>
+    <string name="initial_price_text">for  —  Photos</string>
+    <string name="initial_price">Rs. — </string>
+    <string name="not_available">Not Available</string>
+    <string name="description">Description</string>
+    <string name="_5_ratings">(5 Ratings)</string>
+    <string name="back_button">Back Button</string>
+    <string name="share_button">Share Button</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="price_switch">Price Switch</string>
+    <string name="about_this_item">About This Item</string>
+    <string name="features_and_details">Features And Details</string>
+    <string name="see_more">See More</string>
+    <string name="customise_table_frame">Customise Table Frame</string>
+    <string name="show_lines">Show less</string>
 </resources>
