@@ -5,4 +5,5 @@
     <color name="colorAccent">#f2dd3d</color>
     <color name="green">#008489</color>
     <color name="rating_text">#3e83fa</color>
+    <color name="fab_background">#2b2822</color>
 </resources>

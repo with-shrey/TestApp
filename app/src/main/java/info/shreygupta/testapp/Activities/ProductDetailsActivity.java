@@ -2,8 +2,10 @@ package info.shreygupta.testapp.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -109,6 +111,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        viewImage.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.fab_background)));
+
         /*
         Custom Listner To Listner for changes in variant selection in adapter
          */
