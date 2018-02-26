@@ -28,7 +28,6 @@
             android:layout_alignParentEnd="true"
             android:layout_marginBottom="20dp"
             android:layout_marginEnd="20dp"
-            android:backgroundTint="#2b2822"
             android:src="@drawable/ic_image" />
 
         <RatingBar

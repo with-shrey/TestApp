@@ -1,6 +1,7 @@
 package info.shreygupta.testapp.Activities;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +44,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     ImageView arrow;
     ProgressDialog dialog;
     ArrayList<Variant> variants;
+    ArrayList<String> images;
     TextView seeMore;
     FloatingActionButton viewImage;
     @Override
@@ -75,6 +77,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
         viewImage = findViewById(R.id.view_images);
         seeMore = findViewById(R.id.see_more);
         configRecycler = findViewById(R.id.product_options);
+        images = new ArrayList<>();
+        images.add("http://via.placeholder.com/350x150");
+        images.add("http://via.placeholder.com/350x150");
+        images.add("http://via.placeholder.com/350x150");
+        images.add("http://via.placeholder.com/350x150");
         list = new ArrayList<>();
         variants = new ArrayList<>();
         configRecycler.setLayoutManager(new LinearLayoutManager(this));
@@ -92,6 +99,14 @@ public class ProductDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 toggleCategories();
+            }
+        });
+        viewImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ProductDetailsActivity.this, ImageViewerActivity.class);
+                intent.putStringArrayListExtra("images", images);
+                startActivity(intent);
             }
         });
         /*
