@@ -80,10 +80,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
         seeMore = findViewById(R.id.see_more);
         configRecycler = findViewById(R.id.product_options);
         images = new ArrayList<>();
-        images.add("http://via.placeholder.com/350x150");
-        images.add("http://via.placeholder.com/350x150");
-        images.add("http://via.placeholder.com/350x150");
-        images.add("http://via.placeholder.com/350x150");
         list = new ArrayList<>();
         variants = new ArrayList<>();
         configRecycler.setLayoutManager(new LinearLayoutManager(this));
@@ -106,9 +102,13 @@ public class ProductDetailsActivity extends AppCompatActivity {
         viewImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ProductDetailsActivity.this, ImageViewerActivity.class);
-                intent.putStringArrayListExtra("images", images);
-                startActivity(intent);
+                if (images.size() > 0) {
+                    Intent intent = new Intent(ProductDetailsActivity.this, ImageViewerActivity.class);
+                    intent.putStringArrayListExtra("images", images);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(ProductDetailsActivity.this, "Not Available", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         viewImage.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.fab_background)));
@@ -131,7 +131,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Expand Long Description
+     * Expand/Collapse Long Description
      */
     void expandCollapseDesc() {
         if (seeMore.getText().toString().equals(getString(R.string.see_more))) {
@@ -187,6 +187,12 @@ public class ProductDetailsActivity extends AppCompatActivity {
                         list.add(configurations);
                     }
 
+                    JSONArray mediaImages = object.getJSONArray("media_gallery_entries");
+                    int imgs = mediaImages.length();
+                    for (int x = 0; x < imgs; x++) {
+                        JSONObject temp = mediaImages.getJSONObject(x);
+                        images.add(ApiConfiguration.IMAGE_PATH + temp.getString("file"));
+                    }
                     JSONArray descArray = object.getJSONArray("custom_attributes");
                     int len = descArray.length();
                     for (int i = 0; i < len; i++) {
