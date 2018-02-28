@@ -4,12 +4,18 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -36,6 +42,7 @@ import retrofit2.Callback;
 public class ProductDetailsActivity extends AppCompatActivity {
     Product product;
     CategoriesAdapter adapter;
+    CollapsingToolbarLayout collapsedToolbar;
     TextView description, longDesc, title, price, priceText;
     ImageView headerImage;
     RecyclerView configRecycler;
@@ -65,13 +72,37 @@ public class ProductDetailsActivity extends AppCompatActivity {
         /*
         Top Back Button Click Listner
          */
-        product = new Product();
-        findViewById(R.id.back_button).setOnClickListener(new View.OnClickListener() {
+        Toolbar toolbar = findViewById(R.id.homeToolbar);
+        collapsedToolbar = findViewById(R.id.homeCollapseToolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 finish();
             }
         });
+        AppBarLayout appBarLayout = findViewById(R.id.homeAppBarLayout);
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            boolean isShow = true;
+            int scrollRange = -1;
+
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.getTotalScrollRange();
+                }
+                if (scrollRange + verticalOffset == 0) {
+                    collapsedToolbar.setTitle(title.getText());
+                    isShow = true;
+                } else if (isShow) {
+                    collapsedToolbar.setTitle(" ");//carefull there should a space between double quote otherwise it wont work
+                    isShow = false;
+                }
+            }
+        });
+        product = new Product();
         viewImage = findViewById(R.id.view_images);
         seeMore = findViewById(R.id.see_more);
         configRecycler = findViewById(R.id.product_options);
@@ -144,6 +175,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
     }
 
     void setTitleAndDesc() {
+//        if (getSupportActionBar() != null)
+//            collapsedToolbar.setTitle(product.getName());
         title.setText(product.getName());
         description.setText(product.getCustomAttributes("description").replace("\\u2022", getString(R.string.Bullet)));
         longDesc.setText(product.getCustomAttributes("short_description").replace("\\u2022", getString(R.string.Bullet)));
@@ -153,7 +186,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
      * Fetch All Categeries Eg:- Colours, Papers
      */
     private void fetchCategoriesAndDesc() {
-        showProgressDialog("Fetching Product Info ..");
+        showProgressDialog();
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Product.CustomAttribute.class, new Product.CustomAttrValueTypeAdapter()).create();
         ApiConfiguration apiService =
@@ -189,7 +222,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     }
 
     void fetchPrices() {
-        showProgressDialog("Fetching Product Info ..");
+        showProgressDialog();
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Variant.CustomAttribute.class, new Variant.CustomAttrValueTypeAdapter()).create();
         ApiConfiguration apiService =
@@ -271,11 +304,25 @@ public class ProductDetailsActivity extends AppCompatActivity {
         return containsAll;
     }
 
-    void showProgressDialog(String message) {
+    void showProgressDialog() {
         dialog = new ProgressDialog(this);
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
-        dialog.setMessage(message);
+        dialog.setMessage("Fetching Product Info ..");
         dialog.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.product_details, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        //TODO:handle Click
+        return super.onOptionsItemSelected(item);
     }
 }
