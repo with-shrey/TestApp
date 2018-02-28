@@ -5,31 +5,25 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.toolbox.StringRequest;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
+import java.util.List;
 
 import info.shreygupta.testapp.Adapters.ProductListAdapter;
-import info.shreygupta.testapp.Models.Product;
+import info.shreygupta.testapp.Models.ProductList;
 import info.shreygupta.testapp.R;
+import info.shreygupta.testapp.Utilities.ApiClient;
 import info.shreygupta.testapp.Utilities.ApiConfiguration;
-import info.shreygupta.testapp.Utilities.VolleySingleton;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class ProductListActivity extends AppCompatActivity {
-    ArrayList<Product> products;
+    List<ProductList> products;
     ProductListAdapter adapter;
     ProgressDialog dialog;
-
+    RecyclerView recyclerView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +33,7 @@ public class ProductListActivity extends AppCompatActivity {
         /*
         Check Connectivity Before Fetching Data
          */
-        if (VolleySingleton.getInstance(this).getConnected())
+        if (ApiClient.getConnected(this))
             fetchProducts();
         else {
             Toast.makeText(this, "Not Connected", Toast.LENGTH_SHORT).show();
@@ -48,7 +42,7 @@ public class ProductListActivity extends AppCompatActivity {
 
     void init() {
         products = new ArrayList<>();
-        RecyclerView recyclerView = findViewById(R.id.product_list);
+        recyclerView = findViewById(R.id.product_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ProductListAdapter(this, products);
         recyclerView.setAdapter(adapter);
@@ -58,39 +52,27 @@ public class ProductListActivity extends AppCompatActivity {
      * Fetch List Of Products
      */
     void fetchProducts() {
-        showProgressDialog("Fetching Product List ..");
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, ApiConfiguration.PRODUCTS, new Response.Listener<String>() {
+        showProgressDialog("Fetching Product List..");
+        ApiConfiguration apiService =
+                ApiClient.getClient().create(ApiConfiguration.class);
+        Call<List<ProductList>> listCall = apiService.getAllProducts();
+        listCall.enqueue(new Callback<List<ProductList>>() {
             @Override
-            public void onResponse(String response) {
-                Log.v("response", response);
-                try {
-                    JSONArray main = new JSONArray(response);
-                    int n = main.length();
-                    for (int i = 0; i < n; i++) {
-                        JSONObject object = main.getJSONObject(i);
-                        JSONObject extension = object.getJSONObject("extension_attributes");
-                        products.add(new Product(object.getString("sku"), extension.getString("name")));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    try {
-                        JSONObject errorObj = new JSONObject(response);
-                        Toast.makeText(ProductListActivity.this, errorObj.getString("message"), Toast.LENGTH_SHORT).show();
-                    } catch (JSONException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-                adapter.notifyDataSetChanged();
-                if (dialog != null) {
+            public void onResponse(Call<List<ProductList>> call, retrofit2.Response<List<ProductList>> response) {
+                products = response.body();
+                adapter = new ProductListAdapter(ProductListActivity.this, products);
+                recyclerView.setAdapter(adapter);
+                if (dialog != null)
                     dialog.dismiss();
-                }
-
             }
-        }, VolleySingleton.getInstance(this).errorListener(dialog));
 
-
-        VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
-
+            @Override
+            public void onFailure(Call<List<ProductList>> call, Throwable t) {
+                if (dialog != null)
+                    dialog.dismiss();
+                Toast.makeText(ProductListActivity.this, "Failed To Process", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**

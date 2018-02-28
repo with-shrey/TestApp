@@ -8,10 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import info.shreygupta.testapp.Activities.ProductDetailsActivity;
-import info.shreygupta.testapp.Models.Product;
+import info.shreygupta.testapp.Models.ProductList;
 import info.shreygupta.testapp.R;
 
 /**
@@ -21,9 +21,9 @@ import info.shreygupta.testapp.R;
 public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.VH> {
 
     Context context;
-    ArrayList<Product> list;
+    List<ProductList> list;
 
-    public ProductListAdapter(Context context, ArrayList<Product> data) {
+    public ProductListAdapter(Context context, List<ProductList> data) {
         this.context = context;
         list = data;
     }
@@ -37,7 +37,7 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
 
     @Override
     public void onBindViewHolder(VH holder, int position) {
-        holder.title.setText(list.get(position).getName());
+        holder.title.setText(list.get(position).getExtensionAttributes().getName());
     }
 
     @Override

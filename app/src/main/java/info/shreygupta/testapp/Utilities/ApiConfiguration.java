@@ -1,44 +1,27 @@
 package info.shreygupta.testapp.Utilities;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.util.List;
 
+import info.shreygupta.testapp.Models.Product;
+import info.shreygupta.testapp.Models.ProductList;
+import info.shreygupta.testapp.Models.Variant;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
 /**
  * Created by XCODER on 2/24/2018.
  */
 
-public class ApiConfiguration {
-    static final String API_SERVER = "http://dev.fotonicia.in";
-    public static final String PRODUCT_CONFIGURATION = API_SERVER + "/rest/default/V1/products/Square%20Photo%20Books";
-    public static final String PRODUCTS = API_SERVER + "/rest/default/V1/categories/2/products";
-    public static final String PRODUCT_DETAILS = API_SERVER + "/rest/default/V1/configurable-products/Square%20Photo%20Books/children";
-    public static final String IMAGE_PATH = API_SERVER + "/pub/media/catalog/product";
+public interface ApiConfiguration {
+    String API_SERVER = "http://dev.fotonicia.in";
+    String IMAGE_PATH = API_SERVER + "/pub/media/catalog/product";
 
-    /**
-     * Encode Special Characters of sku
-     *
-     * @param sku
-     * @return Well Formed URL
-     */
-    public static String productDetails(String sku) {
-        String query = null;
-        try {
-            query = URLEncoder.encode(sku, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+    @GET("rest/default/V1/products/{sku}")
+    Call<Product> getProduct(@Path("sku") String sku);
 
-        return API_SERVER + "/rest/default/V1/configurable-products/" + query + "/children";
-    }
+    @GET("rest/default/V1/configurable-products/{sku}/children")
+    Call<List<Variant>> getVariants(@Path("sku") String sku);
 
-    public static String productInfo(String sku) {
-        String query = null;
-        try {
-            query = URLEncoder.encode(sku, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        return API_SERVER + "/rest/default/V1/products/" + query;
-    }
+    @GET("rest/default/V1/categories/2/products")
+    Call<List<ProductList>> getAllProducts();
 }

@@ -8,9 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import info.shreygupta.testapp.Models.Configurations;
+import info.shreygupta.testapp.Models.Product;
 import info.shreygupta.testapp.R;
 
 /**
@@ -19,10 +19,10 @@ import info.shreygupta.testapp.R;
 
 public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.VH> {
     Context context;
-    ArrayList<Configurations> list;
+    List<Product.ConfigurableProductOption> list;
     OnSelectedListner listner;
 
-    public CategoriesAdapter(Context context, ArrayList<Configurations> list) {
+    public CategoriesAdapter(Context context, List<Product.ConfigurableProductOption> list) {
         this.context = context;
         this.list = list;
     }
@@ -36,9 +36,13 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.VH
 
     @Override
     public void onBindViewHolder(CategoriesAdapter.VH holder, int position) {
-        Configurations configuration = list.get(position);
-        holder.title.setText(configuration.getTitle() + " :");
-        holder.selected.setText(configuration.getOptions().get(configuration.getSelected()));
+        Product.ConfigurableProductOption configuration = list.get(position);
+        holder.title.setText(configuration.getLabel() + " :");
+        try {
+            holder.selected.setText(configuration.getValues().get(configuration.getSelected()).getExtensionAttributes().getLabel());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         holder.optionsRecycler.setAdapter(new CategoryItemAdapter(position));
     }
 
@@ -72,11 +76,11 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.VH
 
     class CategoryItemAdapter extends RecyclerView.Adapter<CategoryItemAdapter.VH> {
         int pos;
-        ArrayList<String> data;
+        List<Product.Value> data;
 
         public CategoryItemAdapter(int position) {
             pos = position;
-            data = list.get(pos).getOptions();
+            data = list.get(pos).getValues();
         }
 
         @Override
@@ -88,18 +92,22 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.VH
 
         @Override
         public void onBindViewHolder(CategoryItemAdapter.VH holder, int position) {
-            holder.item.setText(data.get(position));
-            if (list.get(pos).getSelected() == position) {
-                holder.item.setBackgroundColor(context.getResources().getColor(R.color.green));
-                holder.item.setTextColor(context.getResources().getColor(android.R.color.white));
-            } else {
-                holder.item.setBackground(context.getResources().getDrawable(R.drawable.box_border));
-                holder.item.setTextColor(context.getResources().getColor(R.color.green));
+            try {
+                holder.item.setText(data.get(position).getExtensionAttributes().getLabel());
+                if (list.get(pos).getSelected() == position) {
+                    holder.item.setBackgroundColor(context.getResources().getColor(R.color.green));
+                    holder.item.setTextColor(context.getResources().getColor(android.R.color.white));
+                } else {
+                    holder.item.setBackground(context.getResources().getDrawable(R.drawable.box_border));
+                    holder.item.setTextColor(context.getResources().getColor(R.color.green));
+                }
+                holder.item.setPadding((int) context.getResources().getDimension(R.dimen.padding_cat_button)
+                        , (int) context.getResources().getDimension(R.dimen.padding_cat_button)
+                        , (int) context.getResources().getDimension(R.dimen.padding_cat_button)
+                        , (int) context.getResources().getDimension(R.dimen.padding_cat_button));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            holder.item.setPadding((int) context.getResources().getDimension(R.dimen.padding_cat_button)
-                    , (int) context.getResources().getDimension(R.dimen.padding_cat_button)
-                    , (int) context.getResources().getDimension(R.dimen.padding_cat_button)
-                    , (int) context.getResources().getDimension(R.dimen.padding_cat_button));
         }
 
         @Override
